@@ -1,0 +1,6 @@
+---
+- name: stop EC2 instance
+  ec2:
+    region: us-west-2
+    state: stopped
+    instance_ids: 'i-7fc22c70'

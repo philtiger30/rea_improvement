@@ -1,0 +1,47 @@
+#This playbook deploys the whole application stack in this site.  
+# authoer: Lin Bi
+
+# Apply common configuration to all hosts
+- name: Apply common configuration to all hosts
+  hosts: all
+  sudo: true
+  roles:
+  - common
+
+- name: Configure and deploy the webservers and application code
+  hosts: webservers
+  sudo: true
+  # The role web will install nginx with unicorn, and install the Ruby application
+  roles:
+  - base-nginx
+  - web
+
+# Configure and deploy database servers.
+- name: Configure and deploy database servers
+  hosts: dbservers
+  sudo: true
+  roles:
+  - db
+
+- name: ensure that the server is locked down and secure, start iptables, fail2ban 
+  hosts: webservers
+  sudo: true
+  # The security role tasks will install iptables, fail2ban and configure kernal parameters
+  roles:
+  - security
+
+# Configure and deploy the load balancer(s).
+- name: Configure and deploy the load balancer(s).
+  hosts: lbservers
+  sudo: true
+  roles:
+  - haproxy
+
+# Configure and deploy the Nagios monitoring node(s).
+- name: Configure and deploy the Nagios monitoring node(s)
+  hosts: monitoring
+  sudo: true
+  roles:
+  - base-nginx
+  - nagios
+

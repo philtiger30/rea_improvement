@@ -1,0 +1,6 @@
+---
+# Variables listed here are applicable to all host groups
+
+web_name: simple-sinatra-app
+web_app_path: /var/www/simple-sinatra-app
+git_path: git://github.com/tnh/simple-sinatra-app.git

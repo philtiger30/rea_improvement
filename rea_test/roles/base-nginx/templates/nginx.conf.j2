@@ -1,0 +1,67 @@
+# Info: The conf for nginx
+# Author: Lin Bi
+# CTime: 06/03/2015
+
+# set the username and groupname for nginx server
+user nginx web; 
+
+#set the worker process
+worker_processes  1;
+
+#set the error_log path
+error_log  /var/log/nginx/error.log;
+
+#set the pid path
+pid        /var/run/nginx.pid;
+
+events {
+  # use epoll  # on kernal linux 2.6 above, open for production
+  worker_connections  1024;
+  #multi_accept on;
+}
+
+# set http webi server
+http {
+  include /etc/nginx/mime.types;
+  default_type application/octet-stream;
+# set format of logs
+  access_log /var/log/nginx/nginx.access.log combined;
+
+  sendfile        on;
+  #tcp_nopush     on;
+  keepalive_timeout 15;
+  tcp_nodelay        on;
+
+# open gzip
+  gzip  on;
+  gzip_disable "MSIE [1-6]\.(?!.*SV1)";
+
+# set the upstream path to the socket
+  upstream myserver {
+    server 127.0.0.1:9494
+        fail_timeout=0;
+  }
+
+
+#set the server configuration
+  server {
+    root /var/www/simple-sinatra-app/public;
+# listen to the port 80 of HTTP
+    listen 80;
+    server_name www.xxx.com;
+
+    location / {
+      try_files $uri @sinatra;
+    }
+
+    location @sinatra {
+      proxy_pass http://myserver;
+# turn off the redicrect for proxy
+      proxy_redirect off;
+#set the proxy header
+      proxy_set_header Host $http_host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+  }
+}
